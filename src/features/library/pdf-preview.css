@@ -1,0 +1,9 @@
+.pdf-scroll { direction:ltr; overflow:auto; max-height:62dvh; overscroll-behavior:contain; }
+.pdf-page { position:relative; isolation:isolate; direction:ltr; text-align:initial; line-height:1; background:var(--card); margin-inline:auto; flex-shrink:0; }
+.pdf-page canvas { display:block; }
+.pdf-page .textLayer { position:absolute; inset:0; overflow:clip; opacity:1; line-height:1; text-align:initial; text-size-adjust:none; forced-color-adjust:none; transform-origin:0 0; caret-color:var(--foreground); z-index:1; font-family:sans-serif; }
+.pdf-page .textLayer :is(span,br) { color:transparent; position:absolute; white-space:pre; cursor:text; transform-origin:0 0; letter-spacing:normal; font-kerning:none; margin:0; padding:0; border:0; }
+.pdf-page .textLayer > :not(.markedContent),.pdf-page .textLayer .markedContent span:not(.markedContent) { z-index:1; }
+.pdf-page .textLayer span.markedContent { top:0; height:0; }
+.pdf-page .textLayer span[role="img"] { user-select:none; cursor:default; }
+.pdf-page .textLayer ::selection { background:color-mix(in srgb,var(--support) 35%,transparent); }
