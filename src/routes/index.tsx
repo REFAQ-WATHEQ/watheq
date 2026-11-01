@@ -6,13 +6,12 @@ import { Shell } from '@/features/foundation/Shell'
 import { components } from '@/features/foundation/catalog'
 import { brandQuery, pageHead } from '@/features/foundation/queries'
 import {ContentResults} from '@/features/foundation/ContentSpace'
-import libraryImage from '@/assets/knowledge-library.jpg'
 export const Route=createFileRoute('/')({head:()=>pageHead('وثيق — المعرفة تجمعنا','منصة وثيق المعرفية التابعة لجمعية رفاق، مساحة للوثائق والتعلم والخبرات المؤسسية.'),loader:({context})=>context.queryClient.ensureQueryData(brandQuery),component:Index})
 function Index(){
  const [search,setSearch]=useState('');const [searched,setSearched]=useState(false);const [submitted,setSubmitted]=useState('');const matched=components.filter(item=>item.name.includes(search.trim()))
  return <Shell>
   <section className="home-intro">
-   <img src={libraryImage} alt="" width={1536} height={1024} className="hero-image" fetchPriority="high"/>
+   <div className="hero-image" style={{background:'linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%)'}} aria-hidden="true"/>
    <div className="hero-shade"/>
    <div className="site-width hero-content"><span className="hero-eyebrow"><span className="size-1.5 rounded-full bg-accent"/>معرفة تُشارك. أثرٌ يبقى.</span><h1 className="hero-heading">وثيق<span>المعرفة تجمعنا</span></h1><p className="hero-description">نوثّق خبراتنا، ونشارك معارفنا،<br className="sm:hidden"/> لنصنع أثرًا مستدامًا.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Button asChild size="lg" className="hero-cta"><Link to="/documents">استكشف مكتبة الوثائق<ArrowUpLeft/></Link></Button><Button asChild variant="ghost" size="lg" className="hero-secondary"><Link to="/learning">ابدأ رحلة التعلم<ArrowLeft/></Link></Button></div><div className="hero-caption"><span>وثيق · منصة جمعية رفاق المعرفية</span><span>توثيق / تعلّم / مشاركة</span></div></div>
   </section>
