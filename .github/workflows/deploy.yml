@@ -21,11 +21,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check build output
-        run: ls -la .output/ && ls -la .output/server/ || echo "No output directory"
+      - name: Show build output
+        run: find . -name "*.mjs" | head -20 && echo "---" && ls -la .output/ 2>/dev/null || echo "No .output folder"
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --verbose
