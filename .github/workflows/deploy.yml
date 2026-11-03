@@ -20,8 +20,8 @@ jobs:
 
       - name: Build
         run: |
-          echo "SUPABASE_URL=https://vfndtiiztccebdfkaxaq.supabase.co" >> .env
-          echo "SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" >> .env
+          echo "VITE_SUPABASE_URL=https://vfndtiiztccebdfkaxaq.supabase.co" >> .env
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" >> .env
           npm run build
 
       - name: Deploy
