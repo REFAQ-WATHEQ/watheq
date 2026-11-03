@@ -24,6 +24,17 @@ jobs:
           echo "VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" >> .env
           npm run build
 
+      - name: Patch wrangler config
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = '.output/server/wrangler.json';
+            const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+            config.vars = config.vars || {};
+            config.vars.SUPABASE_URL = 'https://vfndtiiztccebdfkaxaq.supabase.co';
+            fs.writeFileSync(path, JSON.stringify(config, null, 2));
+          "
+
       - name: Set secrets
         run: |
           echo "${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" | npx wrangler@4 secret put SUPABASE_PUBLISHABLE_KEY
