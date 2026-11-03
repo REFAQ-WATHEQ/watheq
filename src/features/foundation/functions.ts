@@ -8,9 +8,9 @@ import { employeeSchema } from './access-rules'
 export const getBrand = createServerFn({method:'GET'}).handler(async ()=>{
  const url=import.meta.env['VITE_SUPABASE_URL']||process.env['SUPABASE_URL']; const key=import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY']||process.env['SUPABASE_PUBLISHABLE_KEY']
  if(!url || !key) throw new Error('تعذر الاتصال بإعدادات المنصة')
- const client=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false}})
+ const client=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>{const req=typeof Request!=='undefined'&&input instanceof Request?input:null;const headers=new Headers(req?.headers);if(init?.headers)new Headers(init.headers).forEach((v,k)=>headers.set(k,v));if(key.startsWith('sb_')&&headers.get('Authorization')===`Bearer ${key}`)headers.delete('Authorization');headers.set('apikey',key);return fetch(input,{...init,headers})}}})
  const {data,error}=await client.from('brand_settings').select('id,title_font,body_font,refaq_logo,wathiq_logo').eq('id',1).single()
- if(error)throw new Error('تعذر تحميل الهوية')
+ if(error)throw new Error('تعذر تحميل الهوية: '+error.message)
  async function resolve(path:string){if(!path.startsWith('brand:'))return path;const {data,error}=await client.storage.from('brand-assets').createSignedUrl(path.slice(6),3600);if(error)throw new Error('تعذر تحميل الشعار');return data.signedUrl}
  return {...data,refaq_url:await resolve(data.refaq_logo),wathiq_url:await resolve(data.wathiq_logo)}
 })
@@ -56,11 +56,11 @@ export const changeEmployee = createServerFn({method:'POST'}).middleware([requir
 export const manageOrganization = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.discriminatedUnion('action',[
  z.object({action:z.literal('category-add'),name:z.string().trim().min(2)}),z.object({action:z.literal('group-add'),name:z.string().trim().min(2)}),
  z.object({action:z.literal('category-delete'),id:z.string().uuid()}),z.object({action:z.literal('group-delete'),id:z.string().uuid()}),
- z.object({action:z.literal('category-member-add'),categoryId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('category-member-delete'),id:z.string().uuid()}),
  z.object({action:z.literal('member-add'),groupId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('member-delete'),id:z.string().uuid()}),
+ z.object({action:z.literal('category-member-add'),categoryId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('category-member-delete'),id:z.string().uuid()}),
 ])).handler(async ({data,context})=>{
  const {data:allowed}=await context.supabase.rpc('is_staff');if(!allowed)throw new Error('ليس لديك صلاحية إدارة العضويات')
  let error
-  switch(data.action){case 'category-add':({error}=await context.supabase.from('categories').insert({name:data.name}));break;case 'group-add':({error}=await context.supabase.from('groups').insert({name:data.name}));break;case 'category-delete':({error}=await context.supabase.from('categories').delete().eq('id',data.id));break;case 'group-delete':({error}=await context.supabase.from('groups').delete().eq('id',data.id));break;case 'member-add':({error}=await context.supabase.from('group_memberships').insert({group_id:data.groupId,user_id:data.userId}));break;case 'member-delete':({error}=await context.supabase.from('group_memberships').delete().eq('id',data.id));break;case 'category-member-add':({error}=await context.supabase.from('category_memberships').insert({category_id:data.categoryId,user_id:data.userId}));break;case 'category-member-delete':({error}=await context.supabase.from('category_memberships').delete().eq('id',data.id));break}
+ switch(data.action){case 'category-add':({error}=await context.supabase.from('categories').insert({name:data.name}));break;case 'group-add':({error}=await context.supabase.from('groups').insert({name:data.name}));break;case 'category-delete':({error}=await context.supabase.from('categories').delete().eq('id',data.id));break;case 'group-delete':({error}=await context.supabase.from('groups').delete().eq('id',data.id));break;case 'member-add':({error}=await context.supabase.from('group_memberships').insert({group_id:data.groupId,user_id:data.userId}));break;case 'member-delete':({error}=await context.supabase.from('group_memberships').delete().eq('id',data.id));break;case 'category-member-add':({error}=await context.supabase.from('category_memberships').insert({category_id:data.categoryId,user_id:data.userId}));break;case 'category-member-delete':({error}=await context.supabase.from('category_memberships').delete().eq('id',data.id));break}
  if(error)throw new Error(error.code==='23505'?'العضوية موجودة بالفعل':'تعذر حفظ التغيير');return true
 })
