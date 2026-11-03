@@ -8,7 +8,7 @@ import { employeeSchema } from './access-rules'
 export const getBrand = createServerFn({method:'GET'}).handler(async ()=>{
  const url=import.meta.env['VITE_SUPABASE_URL']||process.env['SUPABASE_URL']; const key=import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY']||process.env['SUPABASE_PUBLISHABLE_KEY']
  if(!url || !key) throw new Error('تعذر الاتصال بإعدادات المنصة')
- const client=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>{const headers=new Headers(init?.headers);if(key.startsWith('sb_')&&headers.get('Authorization')===`Bearer ${key}`)headers.delete('Authorization');headers.set('apikey',key);return fetch(input,{...init,headers})}}})
+ const client=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false}})
  const {data,error}=await client.from('brand_settings').select('id,title_font,body_font,refaq_logo,wathiq_logo').eq('id',1).single()
  if(error)throw new Error('تعذر تحميل الهوية')
  async function resolve(path:string){if(!path.startsWith('brand:'))return path;const {data,error}=await client.storage.from('brand-assets').createSignedUrl(path.slice(6),3600);if(error)throw new Error('تعذر تحميل الشعار');return data.signedUrl}
@@ -56,8 +56,8 @@ export const changeEmployee = createServerFn({method:'POST'}).middleware([requir
 export const manageOrganization = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.discriminatedUnion('action',[
  z.object({action:z.literal('category-add'),name:z.string().trim().min(2)}),z.object({action:z.literal('group-add'),name:z.string().trim().min(2)}),
  z.object({action:z.literal('category-delete'),id:z.string().uuid()}),z.object({action:z.literal('group-delete'),id:z.string().uuid()}),
+ z.object({action:z.literal('category-member-add'),categoryId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('category-member-delete'),id:z.string().uuid()}),
  z.object({action:z.literal('member-add'),groupId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('member-delete'),id:z.string().uuid()}),
-  z.object({action:z.literal('category-member-add'),categoryId:z.string().uuid(),userId:z.string().uuid()}),z.object({action:z.literal('category-member-delete'),id:z.string().uuid()}),
 ])).handler(async ({data,context})=>{
  const {data:allowed}=await context.supabase.rpc('is_staff');if(!allowed)throw new Error('ليس لديك صلاحية إدارة العضويات')
  let error
