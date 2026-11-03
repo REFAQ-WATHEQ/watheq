@@ -6,7 +6,7 @@ import { profileSchema, fonts } from './rules'
 import { z } from 'zod'
 import { employeeSchema } from './access-rules'
 export const getBrand = createServerFn({method:'GET'}).handler(async ()=>{
- const url=process.env['SUPABASE_URL']; const key=process.env['SUPABASE_PUBLISHABLE_KEY']
+ const url=import.meta.env['VITE_SUPABASE_URL']||process.env['SUPABASE_URL']; const key=import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY']||process.env['SUPABASE_PUBLISHABLE_KEY']
  if(!url || !key) throw new Error('تعذر الاتصال بإعدادات المنصة')
  const client=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>{const headers=new Headers(init?.headers);if(key.startsWith('sb_')&&headers.get('Authorization')===`Bearer ${key}`)headers.delete('Authorization');headers.set('apikey',key);return fetch(input,{...init,headers})}}})
  const {data,error}=await client.from('brand_settings').select('id,title_font,body_font,refaq_logo,wathiq_logo').eq('id',1).single()
