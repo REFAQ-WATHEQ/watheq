@@ -6,8 +6,5 @@
   "assets": {
     "directory": ".output/public",
     "binding": "ASSETS"
-  },
-  "vars": {
-    "SUPABASE_URL": "https://vfndtiiztccebdfkaxaq.supabase.co"
   }
 }
